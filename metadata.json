@@ -1,0 +1,5 @@
+{
+  "name": "PodGen Studio",
+  "description": "Generate custom, meandering podcasts on any topic using Gemini Native Audio TTS.",
+  "requestFramePermissions": []
+}
