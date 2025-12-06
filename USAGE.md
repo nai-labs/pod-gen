@@ -59,6 +59,8 @@ The interface is divided into two main sections: **Configuration** (Left) and **
 - **Host Config**:
   - **Single Unit**: One speaker (monologue/narration).
   - **Dual Unit**: Two speakers (dialogue/debate).
+- **Variation (Temp)**: Controls the creativity and expressiveness (0.0 - 2.0). Higher values yield more dynamic results.
+- **Duration**: Select the length of the podcast (Short, Medium, Long).
 
 #### Voice Allocation
 - Modify the "Host" and "Guest" settings if needed (visual representation of the speakers).

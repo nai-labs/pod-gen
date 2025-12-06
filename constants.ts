@@ -7,6 +7,7 @@ export const AVAILABLE_VOICES: Voice[] = [
   { name: 'Laomedeia', label: 'Laomedeia', gender: 'Female', description: 'Soft, empathetic, clear.' },
   { name: 'Aoede', label: 'Aoede', gender: 'Female', description: 'Expressive, dynamic, engaging.' },
   { name: 'Despina', label: 'Despina', gender: 'Female', description: 'Calm, steady, professional.' },
+  { name: 'Algenib', label: 'Algenib', gender: 'Male', description: 'Deep, resonant, authoritative.' },
 ];
 
 export const DEFAULT_SPEAKERS = [
@@ -15,6 +16,6 @@ export const DEFAULT_SPEAKERS = [
 ];
 
 export const TTS_MODELS = [
-  { id: 'gemini-2.5-pro-preview-tts', label: 'PRO CORE (Quality)' },
-  { id: 'gemini-2.5-flash-preview-tts', label: 'FLASH CORE (Speed)' },
+  { id: 'gemini-2.5-pro-preview-tts', label: 'Gemini 2.5 Pro (Quality)' },
+  { id: 'gemini-2.5-flash-preview-tts', label: 'Gemini 2.5 Flash (Speed)' },
 ] as const;

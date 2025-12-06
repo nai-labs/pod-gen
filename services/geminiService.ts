@@ -21,17 +21,15 @@ export const generatePodcastScript = async (config: PodcastConfig): Promise<stri
     ## STYLE GUIDELINES (CRITICAL):
     1.  **EXTREME REALISM**: Real conversations are messy. They are NOT series of monologues.
     2.  **"PING PONG" DIALOGUE**: Keep turns SHORT. 1-2 sentences max often. Rapid fire back-and-forth.
-    3.  **INTERRUPTIONS & OVERLAPS**: 
-        - Speakers should frequently cut each other off. 
+    3.  **NON-VERBAL INTERJECTIONS**: 
+        - Don't just finish sentences. React with SOUNDS.
+        - Use [scoffs], [gasps], [giggles], [groans], [coughs], [whines], [clears throat].
+        - Sometimes a turn should be JUST a sound. e.g. "Speaker B: [scoffs incredulously]"
+    4.  **INTERRUPTIONS & OVERLAPS**: 
+        - Speakers should frequently cut each other off with noises or quick words.
         - Use a dash "--" at the end of a line to show an interruption.
-        - The next speaker should start IMMEDIATELY.
-    4.  **SENTENCE COMPLETION**: Speaker B should sometimes finish Speaker A's thought.
-        - Speaker A: "I was thinking that maybe we could..."
-        - Speaker B: "...just rewrite the whole thing?"
-        - Speaker A: "Exactly!"
-    5.  **AGGRESSIVE BACK-CHANNELING**: The listener must constantly be active.
-        - "Right.", "Mhmm.", "Wait.", "No way.", "Yup.", "Totally."
-        - These should be their own quick turns.
+    5.  **AGGRESSIVE BACK-CHANNELING**: 
+        - "Mhmm.", "Right.", but also non-verbal: [laughs], [sighs], [tsks].
     6.  **FILLERS & HESITATIONS**: Use "um", "like", "you know", "I mean", "sort of" liberally.
     7.  **EMOTION**: Use stage directions in square brackets e.g. [laughing], [sighs], [whispering].
     
@@ -48,15 +46,17 @@ export const generatePodcastScript = async (config: PodcastConfig): Promise<stri
     ${config.speakers[1].name}: Total chaos.
     
     ## OUTPUT REQUIREMENTS:
-    - Strictly use the format "SpeakerName: Text".
+    - Briefly use the format "SpeakerName: Text".
     - Ensure the speaker names match exactly: ${config.speakers.map(s => `"${s.name}"`).join(' and ')}.
-    - Keep the total length dense but concise (approx 400-600 words).
-    - Maintain a very high tempo. Avoid long paragraphs at all costs.
+    - CRITICAL: OPTIMIZED FOR ${config.length?.toUpperCase() || 'SHORT'} FORM settings.
+    - Max ${config.length === 'long' ? 30 : config.length === 'medium' ? 16 : 8} conversational turns total.
+    - Make every turn count. High energy, passionate, animated.
+    - No introductions, no sign-offs. Jump straight into the heat of the topic.
   `;
 
   // We use a text generation model here because the TTS model cannot generate the script.
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: config.scriptModel,
     contents: prompt,
   });
 
@@ -99,17 +99,13 @@ export const generatePodcastAudio = async (
     };
   }
 
-  // We prepend a direction to the model to ensure it understands the assignment
-  const ttsPrompt = isMultiSpeaker
-    ? `TTS the following conversation, paying close attention to the emotion tags and natural flow:\n\n${script}`
-    : script;
-
   const response = await ai.models.generateContent({
     model: config.ttsModel,
-    contents: [{ parts: [{ text: ttsPrompt }] }],
+    contents: [{ parts: [{ text: script }] }],
     config: {
       responseModalities: [Modality.AUDIO],
       speechConfig: speechConfig,
+      temperature: config.temperature,
     },
   });
 
