@@ -9,8 +9,8 @@ const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
  */
 export const generatePodcastScript = async (config: PodcastConfig): Promise<string> => {
   const ai = getClient();
-  
-  const speakerNames = config.speakers.map(s => s.name).join(' and ');
+
+
   const speakerDefinitions = config.speakers.map(s => `${s.name}`).join(', ');
 
   const prompt = `
@@ -19,32 +19,44 @@ export const generatePodcastScript = async (config: PodcastConfig): Promise<stri
     The podcast features ${config.speakers.length} speaker(s): ${speakerDefinitions}.
     
     ## STYLE GUIDELINES (CRITICAL):
-    1.  **Natural & Messy**: Real people don't speak in perfect paragraphs. They speak in short bursts, they interrupt, they meander.
-    2.  **Back-channeling**: The listener should FREQUENTLY interject with short affirmations like "Mhmm", "Yeah", "Right", "Oh wow", "Wait, really?".
-    3.  **Fillers**: Use natural speech fillers (e.g., "um", "uh", "like", "I mean", "you know") to make it sound unscripted.
-    4.  **Emotion & Direction**: Use stage directions in square brackets to guide the voice acting. 
-        - Examples: [laughing], [sighs], [whispering], [excitedly], [sarcastically], [clears throat], [giggling mischievously].
-        - Use these at the start of sentences or standalone to set the tone.
-    5.  **Dynamic Flow**: Avoid long monologues. Create a back-and-forth rhythm. If one person has a longer point, the other MUST react during it (e.g., "Yeah...", "For sure").
+    1.  **EXTREME REALISM**: Real conversations are messy. They are NOT series of monologues.
+    2.  **"PING PONG" DIALOGUE**: Keep turns SHORT. 1-2 sentences max often. Rapid fire back-and-forth.
+    3.  **INTERRUPTIONS & OVERLAPS**: 
+        - Speakers should frequently cut each other off. 
+        - Use a dash "--" at the end of a line to show an interruption.
+        - The next speaker should start IMMEDIATELY.
+    4.  **SENTENCE COMPLETION**: Speaker B should sometimes finish Speaker A's thought.
+        - Speaker A: "I was thinking that maybe we could..."
+        - Speaker B: "...just rewrite the whole thing?"
+        - Speaker A: "Exactly!"
+    5.  **AGGRESSIVE BACK-CHANNELING**: The listener must constantly be active.
+        - "Right.", "Mhmm.", "Wait.", "No way.", "Yup.", "Totally."
+        - These should be their own quick turns.
+    6.  **FILLERS & HESITATIONS**: Use "um", "like", "you know", "I mean", "sort of" liberally.
+    7.  **EMOTION**: Use stage directions in square brackets e.g. [laughing], [sighs], [whispering].
     
     ## EXAMPLE INTERACTION:
-    ${config.speakers[0].name}: [excited] So I was looking at this data yesterday...
-    ${config.speakers[1].name}: Mhmm.
-    ${config.speakers[0].name}: And you won't believe what I found.
-    ${config.speakers[1].name}: [gasps] No way. Don't tell me it's...
-    ${config.speakers[0].name}: [laughing] It absolutely is! It's just... [sighs] it's wild.
-    ${config.speakers[1].name}: [giggling] Oh my god. You have to tell me.
+    ${config.speakers[0].name}: So I saw this thing--
+    ${config.speakers[1].name}: The article? 
+    ${config.speakers[0].name}: Yeah, the article! And it said--
+    ${config.speakers[1].name}: [laughs] I know what you're gonna say.
+    ${config.speakers[0].name}: You do?
+    ${config.speakers[1].name}: It's the part about the... um...
+    ${config.speakers[0].name}: The quantum entanglement?
+    ${config.speakers[1].name}: Yes! That part blew my mind.
+    ${config.speakers[0].name}: Right? It's just... [sighs] chaos.
+    ${config.speakers[1].name}: Total chaos.
     
     ## OUTPUT REQUIREMENTS:
     - Strictly use the format "SpeakerName: Text".
     - Ensure the speaker names match exactly: ${config.speakers.map(s => `"${s.name}"`).join(' and ')}.
     - Keep the total length dense but concise (approx 400-600 words).
-    - The conversation should feel like a deep dive that goes slightly off the rails before coming back.
+    - Maintain a very high tempo. Avoid long paragraphs at all costs.
   `;
 
   // We use a text generation model here because the TTS model cannot generate the script.
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', 
+    model: 'gemini-3-pro-preview',
     contents: prompt,
   });
 
@@ -59,12 +71,12 @@ export const generatePodcastAudio = async (
   config: PodcastConfig
 ): Promise<string> => {
   const ai = getClient();
-  
+
   // Construct the prompt for the TTS model
   // For multi-speaker, we need to ensure the script text aligns with the config.
-  
+
   const isMultiSpeaker = config.speakers.length > 1;
-  
+
   let speechConfig = {};
 
   if (isMultiSpeaker) {
@@ -88,7 +100,7 @@ export const generatePodcastAudio = async (
   }
 
   // We prepend a direction to the model to ensure it understands the assignment
-  const ttsPrompt = isMultiSpeaker 
+  const ttsPrompt = isMultiSpeaker
     ? `TTS the following conversation, paying close attention to the emotion tags and natural flow:\n\n${script}`
     : script;
 
@@ -103,7 +115,7 @@ export const generatePodcastAudio = async (
 
   // Extract base64 audio
   const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  
+
   if (!base64Audio) {
     throw new Error("No audio data returned from Gemini.");
   }
