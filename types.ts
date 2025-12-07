@@ -16,9 +16,9 @@ export interface PodcastConfig {
   speakerCount: 1 | 2;
   speakers: Speaker[];
   ttsModel: 'gemini-2.5-flash-preview-tts' | 'gemini-2.5-pro-preview-tts';
-  scriptModel: 'gemini-3-pro-preview' | 'gemini-2.5-flash';
-  temperature?: number;
-  length?: 'short' | 'medium' | 'long';
+  scriptModel: 'gemini-3-pro-preview' | 'gemini-2.5-flash' | 'x-ai/grok-4.1-fast';
+  temperature: number;
+  length: 'short' | 'medium' | 'long';
 }
 
 export enum GenerationStatus {

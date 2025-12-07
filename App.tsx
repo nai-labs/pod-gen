@@ -5,7 +5,7 @@ import { generatePodcastScript, generatePodcastAudio } from './services/geminiSe
 import { decodeBase64, decodeAudioData, audioBufferToWav } from './utils/audioUtils';
 import SpeakerCard from './components/SpeakerCard';
 import Visualizer from './components/Visualizer';
-import { Play, Pause, RefreshCw, Wand2, Download, Radio, Mic2, Cpu, Zap } from 'lucide-react';
+import { Play, Pause, RefreshCw, Wand2, Download, Mic2, Cpu } from 'lucide-react';
 
 const App: React.FC = () => {
     const [config, setConfig] = useState<PodcastConfig>({
@@ -14,6 +14,8 @@ const App: React.FC = () => {
         speakers: [...DEFAULT_SPEAKERS],
         ttsModel: 'gemini-2.5-pro-preview-tts',
         scriptModel: 'gemini-3-pro-preview',
+        temperature: 1.0,
+        length: 'short',
     });
 
     const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
@@ -221,26 +223,29 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen p-6 md:p-12 flex flex-col items-center gap-8 relative overflow-hidden bg-black selection:bg-cyan-500/40 selection:text-cyan-100">
+        <div className="min-h-screen p-6 md:p-12 flex flex-col items-center gap-10 relative overflow-hidden bg-black text-zinc-200 selection:bg-indigo-500/30 selection:text-indigo-200 font-sans">
 
-            {/* Cyberpunk Grid Background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#080808_1px,transparent_1px),linear-gradient(to_bottom,#080808_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
-
-            {/* Accent Glows */}
-            <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] rounded-full bg-cyan-900/10 blur-[150px] pointer-events-none"></div>
-            <div className="absolute bottom-[-10%] right-[20%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[150px] pointer-events-none"></div>
+            {/* Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-900/20 blur-[120px] mix-blend-screen"></div>
+                <div className="absolute bottom-[-10%] right-[10%] w-[40%] h-[60%] rounded-full bg-blue-900/20 blur-[120px] mix-blend-screen"></div>
+                <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-cyan-900/10 blur-[100px] mix-blend-screen"></div>
+            </div>
 
             {/* Header */}
-            <header className="text-center space-y-2 z-10 relative">
-                <div className="flex items-center justify-center gap-3 mb-2">
-                    <Radio className="w-6 h-6 text-cyan-500 animate-pulse" />
-                    <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-400 uppercase tracking-[0.2em] drop-shadow-[0_0_15px_rgba(6,182,212,0.3)] font-orbitron">
-                        POD_GEN_V2
-                    </h1>
+            <header className="text-center space-y-4 z-10 relative mb-4">
+                <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse"></div>
+                        <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tighter">
+                            3CHO CHAMB3R
+                        </h1>
+                        <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse"></div>
+                    </div>
+                    <p className="text-zinc-500 text-xs font-medium tracking-[0.2em] uppercase">
+                        Audio Synthesis Studio
+                    </p>
                 </div>
-                <p className="text-cyan-500/50 max-w-lg mx-auto font-mono text-[10px] tracking-[0.3em] uppercase border-b border-cyan-900/30 pb-4">
-                    Neural Audio Synthesis Interface
-                </p>
             </header>
 
             <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 z-10">
@@ -248,40 +253,39 @@ const App: React.FC = () => {
                 <div className="space-y-6">
 
                     {/* Topic Section */}
-                    <div className="bg-[#050505] p-6 rounded-sm border border-gray-900 relative group overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-800 to-transparent opacity-50"></div>
+                    <div className="bg-zinc-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 relative overflow-hidden group">
 
-                        <h2 className="text-sm font-bold text-cyan-600 mb-6 flex items-center gap-2 uppercase tracking-widest font-orbitron">
-                            <Cpu className="w-4 h-4" />
+                        <h2 className="text-xs font-semibold text-zinc-400 mb-6 flex items-center gap-2 uppercase tracking-wider">
+                            <Cpu className="w-3 h-3 text-cyan-500" />
                             Input Parameters
                         </h2>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-widest">Topic Vector</label>
+                                <label className="block text-[10px] text-zinc-500 font-bold uppercase mb-3 tracking-widest">Topic Vector</label>
                                 <textarea
                                     value={config.topic}
                                     onChange={(e) => setConfig({ ...config, topic: e.target.value })}
                                     placeholder="Describe the desired podcast conversation..."
-                                    className="w-full h-32 bg-[#020202] border border-gray-800 p-4 text-cyan-100 placeholder-gray-800 focus:border-cyan-600 focus:shadow-[0_0_20px_rgba(6,182,212,0.1)] outline-none resize-none transition-all font-mono text-sm rounded-sm"
+                                    className="w-full h-32 bg-black/50 border border-white/10 p-4 text-zinc-200 placeholder-zinc-700 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all text-sm rounded-2xl"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-widest">Processing Core</label>
+                                    <label className="block text-[10px] text-zinc-500 font-bold uppercase mb-3 tracking-widest">Processing Core</label>
                                     <div className="flex flex-col gap-2">
                                         {TTS_MODELS.map(model => (
                                             <button
                                                 key={model.id}
                                                 onClick={() => setConfig({ ...config, ttsModel: model.id as any })}
-                                                className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-widest transition-all border flex justify-between items-center ${config.ttsModel === model.id
-                                                    ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
-                                                    : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'
+                                                className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border flex justify-between items-center rounded-full ${config.ttsModel === model.id
+                                                    ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                    : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
                                                     }`}
                                             >
                                                 <span>{model.label.split(' (')[0]}</span>
-                                                {config.ttsModel === model.id && <Zap className="w-3 h-3 text-cyan-400" />}
+                                                {config.ttsModel === model.id && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]"></div>}
                                             </button>
                                         ))}
                                     </div>
@@ -289,43 +293,57 @@ const App: React.FC = () => {
 
 
                                 <div>
-                                    <label className="block text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-widest">Script Model</label>
+                                    <label className="block text-[10px] text-zinc-500 font-bold uppercase mb-3 tracking-widest">Script Model</label>
                                     <div className="flex flex-col gap-2">
                                         <button
                                             onClick={() => setConfig({ ...config, scriptModel: 'gemini-3-pro-preview' })}
-                                            className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-widest transition-all border flex justify-between items-center ${config.scriptModel === 'gemini-3-pro-preview'
-                                                ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
-                                                : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'
+                                            className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border flex justify-between items-center rounded-full ${config.scriptModel === 'gemini-3-pro-preview'
+                                                ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
                                                 }`}
                                         >
                                             <span>PRO 3.0</span>
-                                            {config.scriptModel === 'gemini-3-pro-preview' && <Zap className="w-3 h-3 text-cyan-400" />}
+                                            {config.scriptModel === 'gemini-3-pro-preview' && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]"></div>}
                                         </button>
                                         <button
                                             onClick={() => setConfig({ ...config, scriptModel: 'gemini-2.5-flash' })}
-                                            className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-widest transition-all border flex justify-between items-center ${config.scriptModel === 'gemini-2.5-flash'
-                                                ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
-                                                : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'
+                                            className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border flex justify-between items-center rounded-full ${config.scriptModel === 'gemini-2.5-flash'
+                                                ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
                                                 }`}
                                         >
                                             <span>FLASH 2.5</span>
-                                            {config.scriptModel === 'gemini-2.5-flash' && <Zap className="w-3 h-3 text-cyan-400" />}
+                                            {config.scriptModel === 'gemini-2.5-flash' && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]"></div>}
+                                        </button>
+                                        <button
+                                            onClick={() => setConfig({ ...config, scriptModel: 'x-ai/grok-4.1-fast' })}
+                                            className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border flex justify-between items-center rounded-full ${config.scriptModel === 'x-ai/grok-4.1-fast'
+                                                ? 'bg-rose-600 text-white border-transparent shadow-lg shadow-rose-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
+                                                }`}
+                                        >
+                                            <span>GROK 4.1</span>
+                                            {config.scriptModel === 'x-ai/grok-4.1-fast' && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]"></div>}
                                         </button>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-widest">Host Config</label>
+                                    <label className="block text-[10px] text-zinc-500 font-bold uppercase mb-3 tracking-widest">Host Config</label>
                                     <div className="flex flex-col gap-2">
                                         <button
                                             onClick={() => handleSpeakerCountChange(1)}
-                                            className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-widest transition-all border text-left ${config.speakerCount === 1 ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600' : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'}`}
+                                            className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border text-left rounded-full ${config.speakerCount === 1
+                                                ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                                         >
                                             Single Unit
                                         </button>
                                         <button
                                             onClick={() => handleSpeakerCountChange(2)}
-                                            className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-widest transition-all border text-left ${config.speakerCount === 2 ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600' : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'}`}
+                                            className={`w-full py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider transition-all border text-left rounded-full ${config.speakerCount === 2
+                                                ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                                         >
                                             Dual Unit
                                         </button>
@@ -335,19 +353,21 @@ const App: React.FC = () => {
 
                             {/* Temperature Slider */}
                             <div>
-                                <label className="block text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-widest flex justify-between">
-                                    <span>Variation (Temp)</span>
-                                    <span className="text-cyan-400">{config.temperature?.toFixed(1) || '1.0'}</span>
-                                </label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="2"
-                                    step="0.2"
-                                    value={config.temperature || 1.0}
-                                    onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
-                                    className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
-                                />
+                                <div>
+                                    <label className="block text-[10px] text-zinc-500 font-bold uppercase mb-3 tracking-widest flex justify-between">
+                                        <span>Variation (Temp)</span>
+                                        <span className="text-cyan-400">{config.temperature.toFixed(1)}</span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="2"
+                                        step="0.2"
+                                        value={config.temperature}
+                                        onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
+                                        className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_10px_white] hover:[&::-webkit-slider-thumb]:scale-110 transition-all"
+                                    />
+                                </div>
                             </div>
 
                             {/* Length Selector */}
@@ -358,7 +378,9 @@ const App: React.FC = () => {
                                         <button
                                             key={len}
                                             onClick={() => setConfig({ ...config, length: len as any })}
-                                            className={`w-full py-2 px-1 text-[10px] font-bold uppercase tracking-widest transition-all border ${config.length === len || (!config.length && len === 'short') ? 'bg-cyan-950/20 text-cyan-400 border-cyan-600' : 'bg-black border-gray-800 text-gray-600 hover:text-gray-400'}`}
+                                            className={`w-full py-2.5 px-2 text-[10px] font-bold uppercase tracking-wider transition-all border rounded-full ${config.length === len
+                                                ? 'bg-cyan-600 text-white border-transparent shadow-lg shadow-cyan-500/20'
+                                                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                                         >
                                             {len}
                                         </button>
@@ -369,9 +391,9 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Speakers Section */}
-                    <div className="bg-[#050505] p-6 rounded-sm border border-gray-900 relative">
-                        <h2 className="text-sm font-bold text-gray-500 mb-6 flex items-center gap-2 uppercase tracking-widest font-orbitron">
-                            <span className="text-cyan-800">///</span> Voice Allocation
+                    <div className="bg-zinc-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
+                        <h2 className="text-xs font-bold text-zinc-400 mb-6 flex items-center gap-2 uppercase tracking-wider">
+                            <span className="text-cyan-500">///</span> Voice Allocation
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {config.speakers.map((speaker, idx) => (
@@ -380,8 +402,6 @@ const App: React.FC = () => {
                                     index={idx}
                                     speaker={speaker}
                                     onUpdate={handleUpdateSpeaker}
-                                    isRemovable={false}
-                                    onRemove={() => { }}
                                 />
                             ))}
                         </div>
@@ -391,12 +411,9 @@ const App: React.FC = () => {
                     <button
                         onClick={handleGenerate}
                         disabled={status === GenerationStatus.WRITING_SCRIPT || status === GenerationStatus.GENERATING_AUDIO}
-                        className="w-full relative overflow-hidden group bg-cyan-950/10 text-cyan-400 font-bold py-6 border border-cyan-800/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:bg-cyan-900/20 hover:border-cyan-500"
+                        className="w-full relative overflow-hidden group bg-white text-black font-bold py-6 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-[0.98]"
                     >
-                        {/* Scanline effect */}
-                        <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(6,182,212,0.05)_50%)] bg-[size:100%_4px] pointer-events-none"></div>
-
-                        <div className="relative z-10 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-sm">
+                        <div className="flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
                             {status === GenerationStatus.WRITING_SCRIPT ? (
                                 <>
                                     <RefreshCw className="animate-spin w-4 h-4" />
@@ -409,7 +426,7 @@ const App: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <Wand2 className="w-4 h-4" />
+                                    <Wand2 className="w-5 h-5 text-cyan-600" />
                                     Initialize Sequence
                                 </>
                             )}
@@ -428,30 +445,26 @@ const App: React.FC = () => {
                 <div className="flex flex-col gap-6 h-full">
 
                     {/* Audio Player */}
-                    <div className="bg-[#050505] p-6 border border-gray-900 relative backdrop-blur-xl group">
-                        {/* Decorative Elements */}
-                        <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-cyan-900/30 rounded-tr-xl"></div>
-                        <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-cyan-900/30 rounded-bl-xl"></div>
+                    <div className="bg-zinc-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group">
 
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xs font-bold text-cyan-600 uppercase tracking-widest flex items-center gap-2">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                                 Output Stream
                             </h2>
                             {status === GenerationStatus.COMPLETED && (
-                                <span className="text-[9px] text-cyan-400 px-2 py-1 border border-cyan-800 bg-cyan-950/30 uppercase tracking-widest">
+                                <span className="text-[10px] text-emerald-400 px-3 py-1 bg-emerald-950/30 rounded-full border border-emerald-900/50 uppercase tracking-wider">
                                     Ready
                                 </span>
                             )}
                         </div>
 
-                        <div className="mb-6 relative">
+                        <div className="mb-8 relative rounded-2xl overflow-hidden bg-black/40 border border-white/5">
                             <Visualizer isPlaying={isPlaying} analyser={analyserRef.current} />
-                            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(90deg,transparent_0%,rgba(0,0,0,0.8)_100%)]"></div>
                         </div>
 
                         {/* Scrubber */}
-                        <div className="mb-6 flex items-center gap-3 px-2">
-                            <span className="text-[10px] font-mono text-cyan-500/50 w-8 text-right">{formatTime(currentTime)}</span>
+                        <div className="mb-8 flex items-center gap-4 px-2">
+                            <span className="text-[10px] font-mono text-zinc-500 w-8 text-right">{formatTime(currentTime)}</span>
                             <input
                                 type="range"
                                 min="0"
@@ -459,49 +472,49 @@ const App: React.FC = () => {
                                 value={currentTime}
                                 onChange={handleSeek}
                                 disabled={!audioBuffer}
-                                className="flex-1 h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+                                className="flex-1 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-150 transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)]"
                             />
-                            <span className="text-[10px] font-mono text-cyan-500/50 w-8">{formatTime(duration)}</span>
+                            <span className="text-[10px] font-mono text-zinc-500 w-8">{formatTime(duration)}</span>
                         </div>
 
                         <div className="flex items-center justify-center gap-8">
                             <button
                                 onClick={togglePlayback}
                                 disabled={!audioBuffer}
-                                className="group relative w-16 h-16 flex items-center justify-center disabled:opacity-30 transition-all"
+                                className="group relative w-20 h-20 flex items-center justify-center disabled:opacity-30 transition-all"
                             >
-                                <div className="absolute inset-0 border border-cyan-600 rounded-full group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300"></div>
-                                <div className={`absolute inset-0 border border-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping`}></div>
+                                <div className="absolute inset-0 bg-white/5 rounded-full blur-md group-hover:bg-cyan-500/20 transition-all duration-500"></div>
+                                <div className="absolute inset-0 border border-white/10 rounded-full group-hover:scale-105 group-hover:border-cyan-500/50 transition-all duration-300"></div>
 
                                 {isPlaying ? (
-                                    <Pause className="w-6 h-6 text-cyan-400 fill-current" />
+                                    <Pause className="w-8 h-8 text-white fill-current" />
                                 ) : (
-                                    <Play className="w-6 h-6 text-cyan-400 fill-current ml-1" />
+                                    <Play className="w-8 h-8 text-white fill-current ml-1" />
                                 )}
                             </button>
 
                             <button
                                 onClick={handleDownload}
                                 disabled={!audioBuffer}
-                                className="text-gray-600 hover:text-cyan-400 transition-colors disabled:opacity-30"
+                                className="text-zinc-600 hover:text-white transition-colors disabled:opacity-30 p-2 hover:bg-white/5 rounded-full"
                             >
-                                <Download className="w-5 h-5" />
+                                <Download className="w-6 h-6" />
                             </button>
                         </div>
                     </div>
 
                     {/* Script View */}
-                    <div className="flex-1 bg-[#050505] border border-gray-900 p-6 flex flex-col relative overflow-hidden">
-                        <h3 className="text-gray-600 text-[10px] uppercase tracking-[0.3em] font-bold mb-4 flex items-center gap-2 border-b border-gray-900 pb-2">
+                    <div className="flex-1 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-3xl flex flex-col relative overflow-hidden">
+                        <h3 className="text-zinc-500 text-[10px] uppercase tracking-[0.3em] font-bold mb-6 flex items-center gap-2 border-b border-white/5 pb-4">
                             Transcript
                         </h3>
 
-                        <div className="flex-1 overflow-y-auto pr-2 space-y-4 font-mono text-xs text-cyan-100/70 leading-relaxed max-h-[500px] scrollbar-thin">
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-6 font-mono text-xs text-zinc-300 leading-relaxed max-h-[500px] scrollbar-thin">
                             {generatedScript ? (
                                 generatedScript.split('\n').map((line, i) => {
                                     const isSpeakerLabel = config.speakers.some(s => line.startsWith(s.name + ':'));
                                     return (
-                                        <div key={i} className={`${line.trim() === '' ? 'h-2' : ''} ${isSpeakerLabel ? 'text-cyan-400 font-bold mt-4 mb-1 tracking-wider' : 'pl-0 border-l border-gray-800 pl-3 ml-1'}`}>
+                                        <div key={i} className={`${line.trim() === '' ? 'h-2' : ''} ${isSpeakerLabel ? 'text-cyan-400 font-bold mt-4 mb-2 tracking-wider uppercase' : 'pl-4 border-l-2 border-white/5 ml-1'}`}>
                                             {line}
                                         </div>
                                     );

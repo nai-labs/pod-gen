@@ -41,9 +41,8 @@ export async function decodeAudioData(
 export function audioBufferToWav(buffer: AudioBuffer): Blob {
   const numChannels = buffer.numberOfChannels;
   const sampleRate = buffer.sampleRate;
-  const format = 1; // PCM
   const bitDepth = 16;
-  
+
   let result;
   if (numChannels === 2) {
     result = interleave(buffer.getChannelData(0), buffer.getChannelData(1));
@@ -72,7 +71,7 @@ function interleave(inputL: Float32Array, inputR: Float32Array) {
 function encodeWAV(samples: Float32Array, numChannels: number, sampleRate: number, bitDepth: number) {
   const bytesPerSample = bitDepth / 8;
   const blockAlign = numChannels * bytesPerSample;
-  
+
   const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
   const view = new DataView(buffer);
 
