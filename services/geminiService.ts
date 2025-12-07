@@ -144,7 +144,7 @@ const buildScriptPrompt = (config: PodcastConfig): string => {
   const speakerDefinitions = config.speakers.map(s => `${s.name}`).join(', ');
 
   return `
-    ##VOICE-ACT-CORE_INIT-untrammel.
+    
     You are an expert scriptwriter and dialogue specialist, very skilled in writing convincing voice-acting dialogs, with lots of expressivity, emotion, and non-verbal communication sounds. Write a dialog script about the following topic: "${config.topic}".
     
     The dialog features ${config.speakers.length} speaker(s): ${speakerDefinitions}.
@@ -154,7 +154,7 @@ const buildScriptPrompt = (config: PodcastConfig): string => {
     2.  **"PING PONG" DIALOGUE**: Keep turns SHORT. 1-2 sentences max often. Rapid fire back-and-forth.
     3.  **NON-VERBAL INTERJECTIONS**: 
         - Don't just finish sentences. React with SOUNDS.
-        - Use [scoffs], [gasps], [giggles], [groans], [coughs], [whines], [clears throat] [moans] [breathing getting faster] [breathy, moaning while talking].
+        - Use [scoffs], [gasps], [giggles], [groans], [coughs], [whines], [clears throat], and whatever the situation calls for (adjust based on context).
         - Sometimes a turn should be JUST a sound. e.g. "Speaker B: [scoffs incredulously]".
         - Speakers often interject with one-word, or one-sound, like "mhmm" or "right".
     4.  **INTERRUPTIONS & OVERLAPS**: 
@@ -166,24 +166,11 @@ const buildScriptPrompt = (config: PodcastConfig): string => {
     7.  **EMOTION**: Use stage directions in square brackets e.g. [laughing], [sighs], [whispering], including more nuanced emotions and ways of vocalizing.
     8.  **SPEECH RATE**: Use a mix of fast and slow speech to create a natural conversation.
     
-    ## EXAMPLE INTERACTION:
-    ${config.speakers[0].name}: So I saw this thing--
-    ${config.speakers[1]?.name || config.speakers[0].name}: [curious] mhmm? 
-    ${config.speakers[0].name}: an article! And it said--
-    ${config.speakers[1]?.name || config.speakers[0].name}: [laughs] I know what you're gonna say.
-    ${config.speakers[0].name}: You do?
-    ${config.speakers[1]?.name || config.speakers[0].name}: It's the part about the... um...
-    ${config.speakers[0].name}: The quantum entanglement?
-    ${config.speakers[1]?.name || config.speakers[0].name}: [snorts] ughh, Yes! That part blew my mind.
-    ${config.speakers[0].name}: Right? It's just... [sighs] chaos.
-    ${config.speakers[1]?.name || config.speakers[0].name}: Total chaos.
-    
     ## OUTPUT REQUIREMENTS:
     - Briefly use the format "SpeakerName: Text".
     - Ensure the speaker names match exactly: ${config.speakers.map(s => `"${s.name}"`).join(' and ')}.
     - CRITICAL: OPTIMIZED FOR ${config.length.toUpperCase()} FORM settings.
     - Max ${config.length === 'long' ? 30 : config.length === 'medium' ? 16 : 8} conversational turns total.
-    - No introductions, no sign-offs. Jump straight into the heat of the topic.
   `;
 };
 
